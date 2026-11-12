@@ -39,7 +39,12 @@ export function createDemo() {
     await sleep(1200);
     const system = payload.messages[0].content, user = payload.messages[1].content;
     let content;
-    if (system.includes('"order"')) {
+    if (system.startsWith('ASK_MAP')) {
+      // Canned wording-to-shape mapping for the payout question bar.
+      const q = String(JSON.parse(user).question ?? ''), l = q.toLowerCase();
+      const intent = /stiff|light|short|less|missing|cheat|low|off\b/.test(l) ? 'short' : /fee|cost|charge/.test(l) ? 'fees' : /refund|gave back/.test(l) ? 'refunds' : /order|sale|inside/.test(l) ? 'orders' : 'list';
+      content = JSON.stringify({ intent, payout_phrase: q, range_phrase: q, order_phrase: '' });
+    } else if (system.includes('"order"')) {
       // Rank findings before generic next checks, otherwise keep the computed order.
       const { checks } = JSON.parse(user);
       const rank = c => (c.kind === "finding" ? 0 : 1);

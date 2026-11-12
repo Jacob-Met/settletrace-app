@@ -7,6 +7,7 @@ import {investigationWork,setInvestigationArchive,setInvestigationName} from './
 import {createPayPalTransport} from './paypal-transport.mjs';
 import {captureAmountConflicts} from './capture-amount.mjs';
 import http from 'node:http';
+import {handleAsk,isAskAsset} from './ask-routes.mjs';
 import {compareOrderReads,readChangeNote} from './web/read-comparison.mjs';
 import {normalizeCaptureRead,captureRelatedOrderId} from './paypal-resources.mjs';
 import {reviewCaptureReads} from './capture-read-review.mjs';
@@ -301,9 +302,11 @@ export function createService({env=process.env,fetchImpl=fetch,dataFile=resolveD
  async function route(req,res){
   const u=new URL(req.url,'http://localhost'),key=req.method+' '+u.pathname;
   if(demo&&await demo.handle(req,res,u.pathname))return;
-  if(readOnlyDemo&&(req.method!=='GET'||(u.pathname.startsWith('/api/')&&!['/api/state','/api/packet'].includes(u.pathname)))){send(res,403,{error:'This demo is read-only. Run your own workspace to import evidence or contact providers.'});return;}
+  if(readOnlyDemo&&(req.method!=='GET'||(u.pathname.startsWith('/api/')&&!['/api/state','/api/packet','/api/ask/ledger'].includes(u.pathname)))){send(res,403,{error:'This demo is read-only. Run your own workspace to import evidence or contact providers.'});return;}
   if(req.method==='POST'&&!acceptsOperatorOrigin(req.headers.origin)){send(res,403,{error:'Cross-origin write denied'});return;}
   try {
+   if(u.pathname.startsWith('/api/ask/')&&await handleAsk({req,res,pathname:u.pathname,env,fetchImpl}))return;
+   if(req.method==='GET'&&isAskAsset(u.pathname)){const file=u.pathname.slice(1);res.writeHead(200,{'Content-Type':file.endsWith('.css')?'text/css':'text/javascript','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"});res.end(await fs.readFile(path.join(ROOT,'web',file)));return;}
    if(key==='POST /api/webhooks/check-setup'){await body(req);send(res,200,await readWebhookSetup(paypal,env.PAYPAL_WEBHOOK_ID));return;}
    if(key==='GET /api/state'){let s=await statePromise;const {sources,orderReadHeads,...publicState}=s;send(res,200,{...publicState,investigation_work:investigationWork(s),events:publicState.events.map(e=>({...e,source_available:!!sources[e.id],source_raw_available:typeof sources[e.id]?.raw_event==='string',source_headers_complete:completeHeaders(sources[e.id]?.headers)})),connected:!!(env.PAYPAL_CLIENT_ID&&env.PAYPAL_CLIENT_SECRET),webhook_configured:!!env.PAYPAL_WEBHOOK_ID,ai_connected:!!(env.AI_BASE_URL&&env.AI_MODEL),sandbox:base===SANDBOX,read_only_demo:readOnlyDemo});return;}
    if(key==='POST /api/investigation/note'){const input=await body(req);await update(state=>addInvestigationNote(state,input));send(res,201,{saved:true});return;}

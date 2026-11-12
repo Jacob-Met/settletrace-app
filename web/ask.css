@@ -1,0 +1,82 @@
+/* Question bar, answer trace and recent payouts. Uses the app's colour variables so light and dark both work. */
+.ask{--ok:#117d59;--warn:#9b630b;--bad:#bd3c37;--card:color-mix(in srgb,var(--ink) 5%,transparent);--card-hover:color-mix(in srgb,var(--ink) 9%,transparent);padding-top:22px;max-width:1180px}
+html[data-theme=dark] .ask{--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
+.ask-top{display:grid;gap:10px}
+.ask-bar{display:flex;align-items:center;gap:8px;min-height:60px;padding:6px 6px 6px 18px;border:1px solid var(--line);border-radius:30px;background:var(--soft);transition:border-color .15s,box-shadow .15s}
+.ask-bar:focus-within{border-color:var(--ok);box-shadow:0 0 0 4px color-mix(in srgb,var(--ok) 18%,transparent)}
+.ask-lead{width:20px;height:20px;flex:none;color:var(--muted);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ask-bar input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font-size:16px;height:46px;outline:none}
+.ask-bar input::placeholder{color:var(--muted)}
+.ask-mic{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--ink);display:grid;place-items:center;flex:none;padding:0}
+.ask-mic .icon{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ask-mic:hover:not(:disabled){background:var(--card-hover)}
+.ask-mic.rec{background:var(--bad);border-color:var(--bad);color:#fff;animation:ask-pulse 1.2s ease-in-out infinite}
+@keyframes ask-pulse{50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--bad) 22%,transparent)}}
+.ask-send{height:48px;min-width:72px;border-radius:24px;padding:0 22px;font-weight:650}
+.ask-status{margin:0;min-height:0;font-size:14px;color:var(--muted);padding:0 8px}
+.ask-status:empty{display:none}
+.ask-status[data-kind=error]{color:var(--bad)}
+.ask-status[data-kind=busy]:before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:8px;animation:ask-pulse 1s infinite}
+.ask-context{display:flex;align-items:center;gap:6px;width:fit-content;max-width:100%;padding:4px 6px 4px 14px;border-radius:999px;background:var(--card);font-size:13px;color:var(--muted)}
+.ask-context-clear{border:0;background:transparent;color:inherit;width:32px;height:32px;border-radius:50%;padding:0}
+.ask-context-clear:hover{background:var(--card-hover)}
+.ask-chips{display:flex;flex-wrap:wrap;gap:8px}
+.ask-chip{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:10px 16px;font-size:14px;min-height:44px;text-align:left}
+.ask-chip:hover{background:var(--card-hover)}
+.ask-answer{margin-top:22px;padding:22px 20px 24px;border:1px solid var(--line);border-radius:24px;background:var(--soft)}
+.ask-q{margin:0 0 8px;font-size:13px;color:var(--muted)}
+.ask-q:before{content:'You asked  ';text-transform:uppercase;letter-spacing:.06em;font-size:11px;margin-right:6px}
+.ask-sentence{margin:0;font-size:clamp(20px,2.4vw,26px);line-height:1.3;letter-spacing:-.015em;font-weight:600;color:var(--ink);text-wrap:pretty}
+.ask-meta{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:12px}
+.ask-tag{font-size:12px;color:var(--muted)}
+.ask-pill{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 6px;border-radius:999px;font-size:13px;font-weight:650;white-space:nowrap}
+.ask-pill-mark{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;line-height:1;color:#fff}
+.ask-pill-matches{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}.ask-pill-matches .ask-pill-mark{background:var(--ok)}
+.ask-pill-short{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}.ask-pill-short .ask-pill-mark{background:var(--warn)}
+.ask-pill-needs_look{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}.ask-pill-needs_look .ask-pill-mark{background:var(--bad)}
+html[data-theme=dark] .ask-pill-mark{color:#0b0d10}
+/* the trace: vertical on a phone, a wrapping row on a wide screen */
+.flow{list-style:none;margin:22px 0 0;padding:0;display:flex;flex-direction:column;align-items:stretch}
+.step{position:relative}
+.step:not(:last-child):after{content:'';display:block;width:2px;height:16px;margin:0 0 0 30px;background:var(--line)}
+.step-btn{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;width:100%;text-align:left;padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--ink);min-height:68px;align-items:center}
+.step-btn:hover{background:var(--card-hover)}
+.step-kind{grid-column:1/-1;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:650}
+.step-title{font-weight:650;font-size:16px;overflow-wrap:anywhere}
+.step-sub{grid-column:1;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.step-amount{grid-column:2;grid-row:2/4;font-variant-numeric:tabular-nums;font-weight:650;font-size:17px;align-self:center;white-space:nowrap}
+.step-amount.neg{color:var(--bad)}
+.step-flag{grid-column:1/-1;justify-self:start;margin-top:6px;padding:3px 10px;border-radius:999px;background:var(--ok);color:#fff;font-size:12px;font-weight:700}
+html[data-theme=dark] .step-flag{color:#06210f}
+.step.hl .step-btn{border:2px solid var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent);box-shadow:0 0 0 5px color-mix(in srgb,var(--ok) 12%,transparent);padding:13px 15px}
+.step.hl.unknown .step-btn,.step.hl.step-dispute .step-btn{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 11%,transparent);box-shadow:0 0 0 5px color-mix(in srgb,var(--bad) 11%,transparent)}
+.step.hl.unknown .step-flag,.step.hl.step-dispute .step-flag{background:var(--bad)}
+.step.hl.step-refund .step-btn{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent);box-shadow:0 0 0 5px color-mix(in srgb,var(--warn) 12%,transparent)}
+.step.hl.step-refund .step-flag{background:var(--warn)}
+.step-detail{margin:8px 4px 4px;padding:12px 16px;border-radius:14px;background:var(--card);font-size:14px}
+.step-detail dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 16px;margin:0}
+.step-detail dt{color:var(--muted)}.step-detail dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.step-action{margin-top:10px;min-height:44px;padding:0}
+@media(min-width:900px){
+ .flow{flex-direction:row;flex-wrap:wrap;gap:14px 30px;align-items:flex-start}
+ .step{flex:1 1 200px;max-width:270px}
+ .step:not(:last-child):after{position:absolute;top:34px;right:-24px;width:18px;height:2px;margin:0;background:var(--muted);opacity:.6}
+}
+.payout-home{margin-top:30px}
+.payout-summary{margin:4px 0 14px;color:var(--muted);font-size:14px}
+.payout-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.payout-card{display:grid;gap:6px;text-align:left;padding:16px 18px;border:1px solid var(--line);border-radius:20px;background:var(--card);color:var(--ink);min-height:112px}
+.payout-card:hover{background:var(--card-hover)}
+.payout-short{border-left:4px solid var(--warn)}.payout-needs_look{border-left:4px solid var(--bad)}.payout-matches{border-left:4px solid var(--ok)}
+.payout-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.payout-date{font-weight:650;font-size:15px}
+.payout-amount{font-size:26px;font-weight:650;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.payout-sub{font-size:13px;color:var(--muted)}
+.sample-note{margin-top:14px}
+/* Modes: the investigation view stays as it was; the payout view replaces it while asking. */
+body:not([data-mode=payouts]) #ask-answer,body:not([data-mode=payouts]) #payout-home,body:not([data-mode=payouts]) #ask-chips,body:not([data-mode=payouts]) #ask-context{display:none!important}
+body:not([data-mode=payouts]) .ask{padding-top:14px}
+body[data-mode=payouts] .payment-hero,body[data-mode=payouts] .case-tabs,body[data-mode=payouts] .grid-main,body[data-mode=payouts] #first-use-entry{display:none!important}
+#open-payouts[aria-pressed=true]{border-color:var(--ok);color:var(--ok)}
+@media(max-width:760px){.ask-send{min-width:64px;padding:0 16px}#open-payouts span{display:none}#open-payouts{padding:7px 10px}}
+@media(prefers-reduced-motion:reduce){.ask-mic.rec,.ask-status[data-kind=busy]:before{animation:none}}

@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#0b0d10">
   <title>SettleTrace · Investigations</title>
   <link rel="stylesheet" href="/style.css"><link data-theme-sheet="light" rel="stylesheet" href="/style.light.css">
-<link rel="stylesheet" href="/polish.css"><script src="/theme.js"></script></head>
+<link rel="stylesheet" href="/polish.css"><link rel="stylesheet" href="/ask.css"><script src="/theme.js"></script></head>
 <body data-view="overview">
 <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
   <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
@@ -27,7 +27,7 @@
       <button type="button" id="show-investigations" class="icon-button mobile-only" aria-label="Show investigations" aria-controls="investigations" aria-expanded="false"><svg class="icon"><use href="#icon-list"/></svg></button>
       <a class="brand" href="/" aria-label="SettleTrace home"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M7 9h10a6 6 0 0 1 0 12h-2M25 23H15a6 6 0 0 1 0-12h2" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><circle cx="7" cy="9" r="2.2"/><circle cx="25" cy="23" r="2.2"/></svg><span>SettleTrace</span></a>
     </div>
-    <div class="header-actions"><span class="sandbox-badge">Sandbox</span><button type="button" id="share-investigation" class="header-action" data-open-dialog="handoff-dialog" aria-label="Share investigation"><svg class="icon"><use href="#icon-share"/></svg><span>Share</span></button><button type="button" id="open-inspector" class="header-action" data-open-dialog="inspector-dialog"><svg class="icon"><use href="#icon-plus"/></svg><span>Inspect payment</span></button></div>
+    <div class="header-actions"><span class="sandbox-badge">Sandbox</span><button type="button" id="open-payouts" class="header-action" aria-pressed="false"><svg class="icon"><use href="#icon-list"/></svg><span>Payouts</span></button><button type="button" id="share-investigation" class="header-action" data-open-dialog="handoff-dialog" aria-label="Share investigation"><svg class="icon"><use href="#icon-share"/></svg><span>Share</span></button><button type="button" id="open-inspector" class="header-action" data-open-dialog="inspector-dialog"><svg class="icon"><use href="#icon-plus"/></svg><span>Inspect payment</span></button></div>
   </header>
   <aside class="rail" id="investigations" aria-label="Investigations">
     <div class="rail-heading"><h2>Investigations <span id="order-count" class="count">0</span></h2><button type="button" id="close-investigations" class="icon-button mobile-only" aria-label="Close investigations"><svg class="icon"><use href="#icon-close"/></svg></button></div>
@@ -43,6 +43,27 @@
   <button type="button" class="rail-scrim" id="investigations-scrim" aria-label="Close investigations" hidden></button>
   <main class="main" id="payment-workspace">
     <div id="banner" class="banner" role="status" aria-live="polite" hidden></div>
+    <section id="ask-panel" class="ask" aria-label="Ask about payouts">
+      <div class="ask-top">
+        <form id="ask-form" class="ask-bar" autocomplete="off">
+          <svg class="icon ask-lead" aria-hidden="true"><use href="#icon-search"/></svg>
+          <label class="sr-only" for="ask-input">Ask about a payout</label>
+          <input id="ask-input" type="text" maxlength="400" placeholder="Ask: why is Tuesday’s payout short?" autocomplete="off" enterkeyhint="send">
+          <button type="button" id="ask-mic" class="ask-mic" aria-pressed="false" aria-label="Ask by voice"><svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+          <button type="submit" id="ask-send" class="primary ask-send">Ask</button>
+        </form>
+        <p id="ask-status" class="ask-status" role="status" aria-live="polite"></p>
+        <div id="ask-context" class="ask-context" hidden></div>
+        <div id="ask-chips" class="ask-chips"></div>
+      </div>
+      <div id="ask-answer" class="ask-answer" aria-live="polite" hidden></div>
+      <section id="payout-home" class="payout-home" aria-labelledby="payout-heading">
+        <div class="section-heading"><h2 id="payout-heading">Recent payouts</h2><button type="button" id="back-to-investigations" class="text-button">Investigations <svg class="icon"><use href="#icon-arrow"/></svg></button></div>
+        <p id="payout-summary" class="payout-summary"></p>
+        <div id="payout-list" class="payout-list"></div>
+        <p id="sample-note" class="quiet sample-note" hidden>Sample ledger. Put a ledger.json in the data folder to trace your own payouts.</p>
+      </section>
+    </section>
     <section id="first-use-entry" class="first-use-entry" aria-labelledby="first-use-heading" hidden>
       <h2 id="first-use-heading">Start an investigation</h2>
       <div class="first-use-actions"><button type="button" id="open-first-investigation" class="primary">Open investigation file</button><button type="button" class="text-button" data-open-dialog="inspector-dialog">Inspect a payment</button></div>
@@ -95,6 +116,7 @@ $env:PAYPAL_CLIENT_SECRET='your-sandbox-secret'
 </dialog>
 <dialog id="handoff-dialog" class="sheet handoff-sheet" aria-labelledby="handoff-heading"><div class="sheet-heading"><h2 id="handoff-heading">Share investigation</h2><button type="button" class="icon-button" data-close-dialog aria-label="Close"><svg class="icon"><use href="#icon-close"/></svg></button></div><div id="handoff-content"></div></dialog>
 <script src="/startup.js"></script>
+<script type="module" src="/ask-ui.mjs"></script>
 <script id="workspace-module" type="module" src="/app.js"></script>
 </body>
 </html>

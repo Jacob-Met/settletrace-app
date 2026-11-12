@@ -20,6 +20,12 @@ npm run demo        # or: sh ./run-unix.sh --demo
 
 A yellow badge reads "Simulated demo: no real PayPal call". The PayPal Sandbox reads (OAuth and show order details) and the AI ranking are answered by small in-process fakes in `demo-mode.mjs` for one sample order; the demo journal is stored in a temporary folder. SettleTrace itself still only reads: the approve and capture buttons belong to the simulated PayPal page. The real PayPal Sandbox and model setup is described below.
 
+## Ask about payouts
+
+Open **Payouts** in the header (or `/#payouts`). The home view lists recent payouts, each marked **Matches**, **Short** or **Needs a look**. Type or speak a question: "why is Tuesday's payout twelve dollars short?", "which orders are in this payout?", "what did fees cost me this week?". The answer is a tappable trace (order, capture, fee, refund or dispute, payout) with the step that explains it highlighted and one sentence on top. Follow-ups such as "and the one before?" keep the context.
+
+Common question shapes are parsed by rules and computed from the ledger, with no model. Only unusual wording is sent to the local model, which names the shape and nothing more. Voice is recorded in the browser and sent to a local speech-to-text service (`SETTLETRACE_STT_URL`, default `http://127.0.0.1:5621/listen`); typing always works. SettleTrace has no payout feed of its own, so the demo uses a sample ledger anchored to the current week; put a `ledger.json` (same shape as `ask-ledger.mjs` builds) in `SETTLETRACE_DATA_DIR` to trace your own.
+
 ## What it does
 
 - **Find the reference.** Paste a customer email or support ticket; SettleTrace picks out order, capture, refund and event IDs.
