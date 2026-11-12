@@ -278,7 +278,7 @@ export function resolveDataFile(env=process.env) {
 }
 // The journal is evidence storage, not a rolling cache. Retain earlier cases
 // when admitting new observations; request size is bounded before admission.
-export function createService({env=process.env,fetchImpl=fetch,dataFile=resolveDataFile(env),starterCase=false}={}) {
+export function createService({env=process.env,fetchImpl=fetch,dataFile=resolveDataFile(env),starterCase=false,demo=null}={}) {
  const readOnlyDemo=env.SETTLETRACE_DEMO_READ_ONLY==='1';
  if(readOnlyDemo&&['PAYPAL_CLIENT_ID','PAYPAL_CLIENT_SECRET','PAYPAL_WEBHOOK_ID','AI_BASE_URL','AI_MODEL','AI_API_KEY'].some(key=>env[key]))throw Error('Read-only demo must not have provider or model credentials/configuration');
  const acceptsOperatorOrigin=operatorOriginAllowed(env.SETTLETRACE_ORIGIN);
@@ -300,6 +300,7 @@ export function createService({env=process.env,fetchImpl=fetch,dataFile=resolveD
  const completeHeaders=h=>['transmission_id','transmission_time','cert_url','auth_algo','transmission_sig'].every(k=>typeof h?.[k]==='string'&&h[k].length>0);
  async function route(req,res){
   const u=new URL(req.url,'http://localhost'),key=req.method+' '+u.pathname;
+  if(demo&&await demo.handle(req,res,u.pathname))return;
   if(readOnlyDemo&&(req.method!=='GET'||(u.pathname.startsWith('/api/')&&!['/api/state','/api/packet'].includes(u.pathname)))){send(res,403,{error:'This demo is read-only. Run your own workspace to import evidence or contact providers.'});return;}
   if(req.method==='POST'&&!acceptsOperatorOrigin(req.headers.origin)){send(res,403,{error:'Cross-origin write denied'});return;}
   try {
@@ -597,7 +598,7 @@ export function createService({env=process.env,fetchImpl=fetch,dataFile=resolveD
    }
    if(req.method==='GET'&&['/','/theme.js','/style.light.css','/polish.css','/app.js','/startup.js','/finding-search.mjs','/finding-catalog.mjs','/finding-query.mjs','/payment-trace.mjs','/fonts/InterTight-Variable.ttf','/fonts/JetBrainsMono-Regular.woff2','/investigation-notes.mjs','/limitation-note.mjs','/capture-reference.mjs','/dispute-evidence.mjs','/dispute-start.mjs','/case-presentation.mjs','/workspace-shell.mjs','/evidence-filter.mjs','/changed-source-menu.mjs','/style.css','/event-origin.mjs','/read-comparison.mjs','/incident-summary.mjs','/event-discovery.mjs','/webhook-setup-ui.mjs','/delivery-inspector.mjs','/report-intake.mjs','/incident-report.mjs','/refund-selection.mjs'].includes(u.pathname)){
     const file=u.pathname==='/'?'index.html':u.pathname.slice(1),contents=await fs.readFile(path.join(ROOT,'web',file));
-    res.writeHead(200,{'Content-Type':(file.endsWith('.js')||file.endsWith('.mjs'))?'text/javascript':file.endsWith('.css')?'text/css':file.endsWith('.woff2')?'font/woff2':file.endsWith('.ttf')?'font/ttf':'text/html','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"});res.end(contents);return;
+    res.writeHead(200,{'Content-Type':(file.endsWith('.js')||file.endsWith('.mjs'))?'text/javascript':file.endsWith('.css')?'text/css':file.endsWith('.woff2')?'font/woff2':file.endsWith('.ttf')?'font/ttf':'text/html','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"});res.end(demo&&file==='index.html'?demo.decorateHtml(contents):contents);return;
    }
    send(res,404,{error:'Not found'});
   }catch(e){send(res,e.status||500,{error:e.status?e.message:'Unexpected server error'});}

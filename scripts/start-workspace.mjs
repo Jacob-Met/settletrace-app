@@ -29,7 +29,7 @@ export async function copyPreviousWorkspace(from,destination){
 }
 export async function launch(args=process.argv.slice(2)){
  const invocationDirectory=process.cwd();
- if(args.length&&!(args.length===2&&args[0]==='--resume-from'&&args[1].trim())&&!(args.length===1&&args[0]==='--help'))throw Error('Usage: run-unix.sh [--resume-from PREVIOUS_FOLDER] (Windows: run-windows.cmd).');
+ if(args.length&&!(args.length===1&&args[0]==='--demo')&&!(args.length===2&&args[0]==='--resume-from'&&args[1].trim())&&!(args.length===1&&args[0]==='--help'))throw Error('Usage: run-unix.sh [--resume-from PREVIOUS_FOLDER] (Windows: run-windows.cmd).');
  if(args[0]==='--help'){
   console.log('Start SettleTrace normally, or use --resume-from PREVIOUS_FOLDER to copy your own previous workspace into this release. The source stays unchanged; an existing destination is never replaced or merged. PREVIOUS_FOLDER may be the old extracted app folder or its SETTLETRACE_DATA_DIR. This is private local recovery, not shared-investigation import.');
   return;
@@ -41,7 +41,8 @@ export async function launch(args=process.argv.slice(2)){
   console.log('Previous journal unchanged: '+result.source);
   console.log('Current journal: '+result.destination);
  }
- const app=await startServer({starterCase:process.env.SETTLETRACE_STARTER_CASE!=='0'});
+ const demoMode=args.includes('--demo')||process.env.SETTLETRACE_DEMO==='1';
+ const app=await startServer(demoMode?(await import('../demo-mode.mjs')).demoOptions({port:Number(process.env.PORT||4179)}):{starterCase:process.env.SETTLETRACE_STARTER_CASE!=='0'});
  console.log('SettleTrace '+app.url);
 }
 const invoked=process.argv[1]?await fs.realpath(process.argv[1]).catch(()=>null):null;

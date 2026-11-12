@@ -4,6 +4,22 @@ Diagnose before you retry.
 
 SettleTrace is a local incident workbench for developers and support engineers who take PayPal payments. When a checkout fails halfway and a customer asks "was I charged?", it reads what PayPal actually recorded and lays it out as evidence, so nobody re-runs a payment on a guess.
 
+## Try the simulated demo
+
+No PayPal account and no local AI model are needed.
+
+```sh
+npm run demo        # or: sh ./run-unix.sh --demo
+# open http://127.0.0.1:4179
+```
+
+1. Choose **Inspect payment**, open **Find evidence in a report**: a sample customer email is already filled in. Choose **Find identifiers**, then **Use order ID in inspection**, then **Inspect order**. The order is CREATED with no capture.
+2. Open the **Simulated PayPal page** link in the yellow badge (or `/demo/paypal`) and press **Approve**. You return to SettleTrace; choose **Refresh payment** and see the order read as APPROVED, still with no capture.
+3. Under **Next step**, choose **Prioritize checks**. A canned ranking orders the computed checks.
+4. Open the simulated PayPal page again and press **Capture payment** (what the shop's server would do), return, and choose **Refresh payment**. The trace now shows the order COMPLETED with one capture.
+
+A yellow badge reads "Simulated demo: no real PayPal call". The PayPal Sandbox reads (OAuth and show order details) and the AI ranking are answered by small in-process fakes in `demo-mode.mjs` for one sample order; the demo journal is stored in a temporary folder. SettleTrace itself still only reads: the approve and capture buttons belong to the simulated PayPal page. The real PayPal Sandbox and model setup is described below.
+
 ## What it does
 
 - **Find the reference.** Paste a customer email or support ticket; SettleTrace picks out order, capture, refund and event IDs.
