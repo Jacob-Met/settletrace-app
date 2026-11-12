@@ -79,3 +79,7 @@ A local, single-operator tool. It listens on loopback and has no sign-in. It is 
 ## License
 
 MIT. See [LICENSE](LICENSE). Source: <https://github.com/Jacob-Met/settletrace-app>
+
+## Light and dark mode
+
+The interface follows the system colour scheme, and the round button in the bottom-right corner switches between light and dark. The second colour sheet is generated from the first with `tools/retheme.py`, so the two always share the same layout.
